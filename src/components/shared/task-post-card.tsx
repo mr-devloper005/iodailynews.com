@@ -132,7 +132,7 @@ export function TaskPostCard({
         }
 
     return (
-      <Link href={href} className={`group flex h-full flex-col overflow-hidden transition duration-300 ${cardTone.frame}`}>
+      <Link href={href} data-task-card={variant} className={`group flex h-full flex-col overflow-hidden transition duration-300 ${cardTone.frame}`}>
         <div className="relative aspect-[16/11] overflow-hidden bg-slate-100">
           <ContentImage src={image} alt={altText} fill sizes={imageSizes} quality={75} className="object-cover transition-transform duration-500 group-hover:scale-[1.04]" intrinsicWidth={960} intrinsicHeight={720} />
           <div className="absolute inset-x-0 top-0 flex items-center justify-between p-4">
@@ -163,7 +163,7 @@ export function TaskPostCard({
 
   if (isBookmarkVariant) {
     return (
-      <Link href={href} className={`group flex h-full flex-row items-start gap-4 overflow-hidden p-5 transition duration-300 ${visualVariant.frame}`}>
+      <Link href={href} data-task-card={variant} className={`group flex h-full flex-row items-start gap-4 overflow-hidden p-5 transition duration-300 ${visualVariant.frame}`}>
         <div className="mt-1 rounded-full bg-white/10 p-2.5 text-current transition group-hover:scale-105">
           <ExternalLink className="h-4 w-4" />
         </div>
@@ -184,7 +184,7 @@ export function TaskPostCard({
   }
 
   return (
-    <Link href={href} className={`group flex h-full flex-col overflow-hidden transition duration-300 ${visualVariant.frame}`}>
+    <Link href={href} data-task-card={variant} className={`group flex h-full flex-col overflow-hidden transition duration-300 ${visualVariant.frame}`}>
       <div className={`relative ${imageAspect} overflow-hidden bg-[#ede2dc]`}>
         <ContentImage src={image} alt={altText} fill sizes={imageSizes} quality={75} className="object-cover transition-transform duration-500 group-hover:scale-[1.04]" intrinsicWidth={960} intrinsicHeight={720} />
         <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent opacity-80" />

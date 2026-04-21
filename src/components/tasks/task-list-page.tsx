@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight, Building2, FileText, Image as ImageIcon, LayoutGrid, Tag, User } from 'lucide-react'
+import { ArrowRight, Building2, FileText, Image as ImageIcon, LayoutGrid, Search, Tag, User } from 'lucide-react'
 import { NavbarShell } from '@/components/shared/navbar-shell'
 import { Footer } from '@/components/shared/footer'
 import { TaskListClient } from '@/components/tasks/task-list-client'
@@ -49,6 +49,7 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
   const posts = await fetchTaskPosts(task, 30)
   const normalizedCategory = category ? normalizeCategory(category) : 'all'
   const intro = taskIntroCopy[task]
+  const isPressWire = task === 'mediaDistribution'
   const baseUrl = SITE_CONFIG.baseUrl.replace(/\/$/, '')
   const schemaItems = posts.slice(0, 10).map((post, index) => ({
     '@type': 'ListItem',
@@ -62,32 +63,42 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
   const Icon = taskIcons[task] || LayoutGrid
 
   const isDark = ['image-masonry', 'image-portfolio', 'profile-creator'].includes(layoutKey)
-  const ui = isDark
+  const ui = isPressWire
     ? {
-        muted: 'text-slate-300',
-        panel: 'border border-white/10 bg-white/6',
-        soft: 'border border-white/10 bg-white/5',
-        input: 'border-white/10 bg-white/6 text-white',
-        button: 'bg-white text-slate-950 hover:bg-slate-200',
+        muted: 'text-[var(--io-stone)]',
+        panel: 'border border-[var(--io-border)] bg-white shadow-[0_18px_50px_rgba(23,16,16,0.06)]',
+        soft: 'border border-dashed border-[var(--io-border)] bg-[color-mix(in_srgb,var(--io-stone)_8%,var(--io-canvas))]',
+        input: 'border border-[var(--io-border)] bg-white text-[var(--io-ink)]',
+        button: 'bg-[var(--io-brand)] text-[var(--primary-foreground)] hover:bg-[var(--io-teal-hover)]',
       }
-    : layoutKey.startsWith('article') || layoutKey.startsWith('sbm')
+    : isDark
       ? {
-          muted: 'text-[#72594a]',
-          panel: 'border border-[#dbc6b6] bg-white/90',
-          soft: 'border border-[#dbc6b6] bg-[#fff8ef]',
-          input: 'border border-[#dbc6b6] bg-white text-[#2f1d16]',
-          button: 'bg-[#2f1d16] text-[#fff4e4] hover:bg-[#452920]',
+          muted: 'text-slate-300',
+          panel: 'border border-white/10 bg-white/6',
+          soft: 'border border-white/10 bg-white/5',
+          input: 'border-white/10 bg-white/6 text-white',
+          button: 'bg-white text-slate-950 hover:bg-slate-200',
         }
-      : {
-          muted: 'text-slate-600',
-          panel: 'border border-slate-200 bg-white',
-          soft: 'border border-slate-200 bg-slate-50',
-          input: 'border border-slate-200 bg-white text-slate-950',
-          button: 'bg-slate-950 text-white hover:bg-slate-800',
-        }
+      : layoutKey.startsWith('article') || layoutKey.startsWith('sbm')
+        ? {
+            muted: 'text-[#72594a]',
+            panel: 'border border-[#dbc6b6] bg-white/90',
+            soft: 'border border-[#dbc6b6] bg-[#fff8ef]',
+            input: 'border border-[#dbc6b6] bg-white text-[#2f1d16]',
+            button: 'bg-[#2f1d16] text-[#fff4e4] hover:bg-[#452920]',
+          }
+        : {
+            muted: 'text-slate-600',
+            panel: 'border border-slate-200 bg-white',
+            soft: 'border border-slate-200 bg-slate-50',
+            input: 'border border-slate-200 bg-white text-slate-950',
+            button: 'bg-slate-950 text-white hover:bg-slate-800',
+          }
+
+  const shellClassResolved = isPressWire ? 'bg-[var(--io-canvas)] text-[var(--io-ink)]' : shellClass
 
   return (
-    <div className={`min-h-screen ${shellClass}`}>
+    <div className={`task-archive min-h-screen ${shellClassResolved}`} data-task={task}>
       <NavbarShell />
       <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         {task === 'listing' ? (
@@ -151,22 +162,51 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
           <section className="mb-12 grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
             <div>
               <p className={`text-xs uppercase tracking-[0.3em] ${ui.muted}`}>{taskConfig?.label || task}</p>
-              <h1 className="mt-3 max-w-4xl text-5xl font-semibold tracking-[-0.05em] text-foreground">{taskConfig?.description || 'Latest posts'}</h1>
-              <p className={`mt-5 max-w-2xl text-sm leading-8 ${ui.muted}`}>This reading surface uses slower pacing, stronger typographic hierarchy, and more breathing room so long-form content feels intentional rather than squeezed into a generic feed.</p>
+              <h1
+                className={`mt-3 max-w-4xl text-5xl font-semibold tracking-[-0.05em] ${isPressWire ? 'text-[var(--io-heading)]' : 'text-foreground'}`}
+              >
+                {taskConfig?.description || 'Latest posts'}
+              </h1>
+              <p className={`mt-5 max-w-2xl text-sm leading-8 ${ui.muted}`}>
+                {isPressWire
+                  ? 'Browse published releases, filter by category or date context, and open any item for the full story and related items.'
+                  : 'This reading surface uses slower pacing, stronger typographic hierarchy, and more breathing room so long-form content feels intentional rather than squeezed into a generic feed.'}
+              </p>
             </div>
             <div className={`rounded-[2rem] p-6 ${ui.panel}`}>
-              <p className={`text-xs font-semibold uppercase tracking-[0.24em] ${ui.muted}`}>Reading note</p>
-              <p className={`mt-4 text-sm leading-7 ${ui.muted}`}>Use category filters to jump between topics without collapsing the page into the same repeated card rhythm used by other task types.</p>
-              <form className="mt-5 flex items-center gap-3" action={taskConfig?.route || '#'}>
-                <select name="category" defaultValue={normalizedCategory} className={`h-11 flex-1 rounded-xl px-3 text-sm ${ui.input}`}>
+              <p className={`text-xs font-semibold uppercase tracking-[0.24em] ${ui.muted}`}>{isPressWire ? 'Find & filter' : 'Reading note'}</p>
+              <p className={`mt-4 text-sm leading-7 ${ui.muted}`}>
+                {isPressWire
+                  ? 'Combine category filters with site search when you need a keyword match across headlines and body text.'
+                  : 'Use category filters to jump between topics without collapsing the page into the same repeated card rhythm used by other task types.'}
+              </p>
+              <form className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center" action={taskConfig?.route || '#'}>
+                <select name="category" defaultValue={normalizedCategory} className={`h-11 w-full flex-1 rounded-xl px-3 text-sm ${ui.input}`}>
                   <option value="all">All categories</option>
                   {CATEGORY_OPTIONS.map((item) => (
                     <option key={item.slug} value={item.slug}>{item.name}</option>
                   ))}
                 </select>
-                <button type="submit" className={`h-11 rounded-xl px-4 text-sm font-medium ${ui.button}`}>Apply</button>
+                <button type="submit" className={`h-11 shrink-0 rounded-xl px-4 text-sm font-medium ${ui.button}`}>Apply</button>
               </form>
+              {isPressWire ? (
+                <Link
+                  href="/search"
+                  className={`mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed px-4 py-3 text-sm font-semibold transition-colors sm:w-auto ${ui.soft}`}
+                >
+                  <Search className="h-4 w-4" aria-hidden />
+                  Search releases
+                </Link>
+              ) : null}
             </div>
+            {isPressWire ? (
+              <div className="lg:col-span-2">
+                <p className={`text-xs font-semibold uppercase tracking-[0.2em] ${ui.muted}`}>Date filters</p>
+                <p className={`mt-2 text-sm leading-7 ${ui.muted}`}>
+                  Use newest-first ordering in the grid; when you need a specific period, pair category filters with archive scanning or search.
+                </p>
+              </div>
+            ) : null}
           </section>
         ) : null}
 
