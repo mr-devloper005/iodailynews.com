@@ -65,11 +65,11 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
   const isDark = ['image-masonry', 'image-portfolio', 'profile-creator'].includes(layoutKey)
   const ui = isPressWire
     ? {
-        muted: 'text-[var(--io-stone)]',
-        panel: 'border border-[var(--io-border)] bg-white shadow-[0_18px_50px_rgba(23,16,16,0.06)]',
-        soft: 'border border-dashed border-[var(--io-border)] bg-[color-mix(in_srgb,var(--io-stone)_8%,var(--io-canvas))]',
-        input: 'border border-[var(--io-border)] bg-white text-[var(--io-ink)]',
-        button: 'bg-[var(--io-brand)] text-[var(--primary-foreground)] hover:bg-[var(--io-teal-hover)]',
+        muted: 'text-[#6a5b55]',
+        panel: 'border border-[#e5d6ce] bg-white shadow-[0_14px_34px_rgba(49,33,26,0.08)]',
+        soft: 'border border-dashed border-[#dbc8bf] bg-[#fff8f4]',
+        input: 'border border-[#d8c9c1] bg-white text-[#2f1b1a]',
+        button: 'bg-[#ff4f1f] text-white hover:bg-[#f13f10]',
       }
     : isDark
       ? {
@@ -95,7 +95,7 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
             button: 'bg-slate-950 text-white hover:bg-slate-800',
           }
 
-  const shellClassResolved = isPressWire ? 'bg-[var(--io-canvas)] text-[var(--io-ink)]' : shellClass
+  const shellClassResolved = isPressWire ? 'bg-[#f8f6f2] text-[#2b2b2b]' : shellClass
 
   return (
     <div className={`task-archive min-h-screen ${shellClassResolved}`} data-task={task}>
@@ -163,7 +163,7 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
             <div>
               <p className={`text-xs uppercase tracking-[0.3em] ${ui.muted}`}>{taskConfig?.label || task}</p>
               <h1
-                className={`mt-3 max-w-4xl text-5xl font-semibold tracking-[-0.05em] ${isPressWire ? 'text-[var(--io-heading)]' : 'text-foreground'}`}
+                className={`mt-3 max-w-4xl text-5xl font-semibold tracking-[-0.05em] ${isPressWire ? 'text-[#2f1b1a]' : 'text-foreground'}`}
               >
                 {taskConfig?.description || 'Latest posts'}
               </h1>

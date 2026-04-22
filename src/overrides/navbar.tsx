@@ -28,7 +28,7 @@ const STATIC_LINKS = [
 const SCROLL_THRESHOLD_PX = 16
 
 /** Routes whose first section is a dark hero under the sticky nav — only here we use light text before scroll. */
-const DARK_HERO_PREFIXES = ['/', '/pricing', '/contact'] as const
+const DARK_HERO_PREFIXES = ['/', '/pricing', '/contact', '/login', '/register'] as const
 
 function matchesDarkHeroRoute(pathname: string) {
   return DARK_HERO_PREFIXES.some((prefix) => {
@@ -98,7 +98,7 @@ export function NavbarOverride() {
               <span
                 className={cn(
                   'block truncate font-[family-name:var(--site-font-display)] text-lg font-semibold tracking-tight sm:text-xl',
-                  lightNav ? 'text-[var(--io-heading)]' : 'text-[var(--primary-foreground)]',
+                  lightNav ? 'text-[#2f1b1a]' : 'text-[var(--primary-foreground)]',
                 )}
               >
                 {SITE_CONFIG.name}
@@ -106,7 +106,7 @@ export function NavbarOverride() {
               <span
                 className={cn(
                   'hidden text-[10px] font-medium uppercase tracking-[0.22em] sm:block',
-                  lightNav ? 'text-[var(--io-stone)]' : 'text-[var(--io-on-dark)]',
+                  lightNav ? 'text-[#8a5f4d]' : 'text-[var(--io-on-dark)]',
                 )}
               >
                 Press wire
@@ -125,8 +125,8 @@ export function NavbarOverride() {
                     'rounded-full px-4 py-2 text-sm font-semibold transition-colors',
                     lightNav
                       ? active
-                        ? 'bg-[color-mix(in_srgb,var(--io-stone)_14%,white)] text-[var(--io-heading)]'
-                        : 'text-[var(--io-heading)] hover:bg-[color-mix(in_srgb,var(--io-stone)_10%,white)] hover:text-[var(--io-heading)]'
+                        ? 'bg-[#f0e4dd] text-[#2f1b1a]'
+                        : 'text-[#3f2c26] hover:bg-[#f5ebe4] hover:text-[#2f1b1a]'
                       : active
                         ? 'bg-[#ff4f1f] text-white shadow-[0_8px_24px_rgba(255,79,31,0.35)]'
                         : 'text-white/95 hover:bg-white/12 hover:text-white',
@@ -143,7 +143,7 @@ export function NavbarOverride() {
               variant="ghost"
               size="icon"
               asChild
-              className={cn('hidden rounded-full md:flex', lightNav ? 'text-[var(--io-stone)]' : 'text-white/95 hover:bg-white/12 hover:text-white')}
+              className={cn('hidden rounded-full md:flex', lightNav ? 'text-[#5f3e32] hover:bg-[#f1e7e1] hover:text-[#2f1b1a]' : 'text-white/95 hover:bg-white/12 hover:text-white')}
             >
               <Link href="/search" aria-label="Search">
                 <Search className="h-5 w-5" />
@@ -174,7 +174,7 @@ export function NavbarOverride() {
                   asChild
                   className={cn(
                     'rounded-full font-semibold',
-                    lightNav ? 'text-[var(--io-heading)]' : 'text-white hover:bg-white/12',
+                    lightNav ? 'text-[#2f1b1a] hover:bg-[#f1e7e1]' : 'text-white hover:bg-white/12',
                   )}
                 >
                   <Link href="/login">Sign in</Link>
@@ -186,7 +186,7 @@ export function NavbarOverride() {
                   className={cn(
                     'rounded-full font-semibold',
                     lightNav
-                      ? 'border-[var(--io-border)] text-[var(--io-heading)]'
+                      ? 'border-[#c8b9b0] bg-white text-[#2f1b1a] hover:bg-[#f8f0eb]'
                       : 'border-white/45 bg-transparent text-white hover:bg-white/15',
                   )}
                 >
@@ -198,7 +198,7 @@ export function NavbarOverride() {
             <Button
               variant="ghost"
               size="icon"
-              className={cn('rounded-full lg:hidden', lightNav ? 'text-[var(--io-heading)]' : 'text-white hover:bg-white/12')}
+              className={cn('rounded-full lg:hidden', lightNav ? 'text-[#2f1b1a] hover:bg-[#f1e7e1]' : 'text-white hover:bg-white/12')}
               onClick={() => setOpen(!open)}
               aria-expanded={open}
             >
