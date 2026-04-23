@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/components/ui/use-toast'
 import { useAuth } from '@/lib/auth-context'
 import { SITE_CONFIG, type TaskKey } from '@/lib/site-config'
+import { cn } from '@/lib/utils'
 
 const taskIcons: Record<TaskKey, any> = {
   article: FileText,
@@ -30,9 +31,20 @@ const taskIcons: Record<TaskKey, any> = {
   mediaDistribution: FileText,
 }
 
-export function NavbarAuthControls() {
+type NavbarAuthControlsProps = {
+  /** Use when the navbar sits on a dark / hero background (light icon colors). */
+  tone?: 'default' | 'on-dark'
+}
+
+export function NavbarAuthControls({ tone = 'default' }: NavbarAuthControlsProps) {
   const { user, logout } = useAuth()
   const { toast } = useToast()
+  const onDark = tone === 'on-dark'
+  const ghostIcon =
+    'relative rounded-full ' +
+    (onDark
+      ? 'text-[var(--io-on-dark)] hover:bg-white/10 hover:text-white'
+      : 'text-[#5f4750] hover:bg-[rgba(110,26,55,0.06)] hover:text-[#8f1f3f]')
 
   return (
     <>
@@ -61,7 +73,7 @@ export function NavbarAuthControls() {
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="relative rounded-full text-[#5f4750] hover:bg-[rgba(110,26,55,0.06)] hover:text-[#8f1f3f]">
+          <Button variant="ghost" size="icon" className={ghostIcon}>
             <Bell className="h-5 w-5" />
             <Badge className="absolute -right-1 -top-1 h-5 w-5 rounded-full bg-[#72BAA9] p-0 text-[10px] text-[#10211c]">
               3
@@ -105,8 +117,8 @@ export function NavbarAuthControls() {
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="rounded-full text-[#5f4750] hover:bg-[rgba(110,26,55,0.06)] hover:text-[#8f1f3f]">
-            <Avatar className="h-9 w-9 border border-[rgba(110,26,55,0.12)]">
+          <Button variant="ghost" size="icon" className={ghostIcon}>
+            <Avatar className={cn('h-9 w-9', onDark ? 'border border-white/20' : 'border border-[rgba(110,26,55,0.12)]')}>
               <AvatarImage src={user?.avatar} alt={user?.name} />
               <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
             </Avatar>

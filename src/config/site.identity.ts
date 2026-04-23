@@ -1,10 +1,10 @@
 export const siteIdentity = {
   code: process.env.NEXT_PUBLIC_SITE_CODE || '5qmn2ecm2v',
-  name: process.env.NEXT_PUBLIC_SITE_NAME || 'Iodailynews',
-  tagline: process.env.NEXT_PUBLIC_SITE_TAGLINE || 'Independent media updates',
+  name: process.env.NEXT_PUBLIC_SITE_NAME || 'iodailynews',
+  tagline: process.env.NEXT_PUBLIC_SITE_TAGLINE || 'Press release distribution for teams that need reach',
   description:
     process.env.NEXT_PUBLIC_SITE_DESCRIPTION ||
-    'A simple newsroom-style publication for announcements, coverage, and media updates on Iodailynews.',
+    'Distribute announcements to thousands of outlets, track pickup, and keep your newsroom workflow organized on iodailynews.',
   domain: process.env.NEXT_PUBLIC_SITE_DOMAIN || 'iodailynews.com',
   url: process.env.NEXT_PUBLIC_SITE_URL || 'https://iodailynews.com',
   ogImage: process.env.NEXT_PUBLIC_SITE_OG_IMAGE || '/og-default.png',
