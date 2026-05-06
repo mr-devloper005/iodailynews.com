@@ -9,7 +9,6 @@ const groups = [
     title: 'Product',
     links: [
       { label: 'Press releases', href: '/updates' },
-      { label: 'Pricing', href: '/pricing' },
       { label: 'Submit release', href: '/create/mediaDistribution' },
       { label: 'Search', href: '/search' },
     ],
@@ -19,8 +18,6 @@ const groups = [
     links: [
       { label: 'Contact', href: '/contact' },
       { label: 'About', href: '/about' },
-      { label: 'Careers', href: '/careers' },
-      { label: 'Status', href: '/status' },
     ],
   },
   {
@@ -36,7 +33,6 @@ const groups = [
     links: [
       { label: 'Sign in', href: '/login' },
       { label: 'Register', href: '/register' },
-      { label: 'Dashboard', href: '/dashboard' },
     ],
   },
 ]

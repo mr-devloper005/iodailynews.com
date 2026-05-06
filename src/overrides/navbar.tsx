@@ -20,7 +20,6 @@ export const NAVBAR_OVERRIDE_ENABLED = true
 
 const STATIC_LINKS = [
   { label: 'Press releases', href: '/updates' },
-  { label: 'Pricing', href: '/pricing' },
   { label: 'Search', href: '/search' },
   { label: 'Contact', href: '/contact' },
 ]
@@ -65,15 +64,6 @@ export function NavbarOverride() {
         )}
       >
         <span>{siteContent.navbar.tagline}</span>
-        <span className={cn('mx-2', lightNav ? 'opacity-45' : 'opacity-55')} aria-hidden>
-          ·
-        </span>
-        <Link
-          href="/pricing"
-          className={cn('font-semibold underline-offset-4 hover:underline', lightNav ? 'text-[#3f2c26]' : 'text-white')}
-        >
-          View plans
-        </Link>
       </div>
 
       <div
@@ -156,7 +146,7 @@ export function NavbarOverride() {
               asChild
               className={cn(
                 'hidden rounded-full px-4 font-semibold shadow-sm sm:inline-flex',
-                lightNav ? 'bg-[#2a1b3a] text-white hover:bg-[#3a2852]' : 'bg-[#ff4f1f] text-white hover:bg-[#f13f10]',
+                lightNav ? 'bg-[#ff4f1f] text-white hover:bg-[#f13f10]' : 'bg-[#ff4f1f] text-white hover:bg-[#f13f10]',
               )}
             >
               <Link href="/create/mediaDistribution">Submit Press Release</Link>
