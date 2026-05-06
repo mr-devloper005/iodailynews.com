@@ -143,7 +143,7 @@ export async function TaskDetailPageOverride({ slug }: { task: TaskKey; slug: st
             <span className="text-slate-700">Release</span>
           </nav>
 
-          <p className="mt-8 text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">Press release · {published}</p>
+          <p className="mt-8 text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">Press release</p>
           <h1 className="mt-3 font-[family-name:var(--site-font-display)] text-3xl font-semibold leading-tight tracking-[-0.03em] text-[var(--io-heading)] sm:text-4xl lg:text-[2.35rem]">
             {post.title}
           </h1>
@@ -206,11 +206,6 @@ export async function TaskDetailPageOverride({ slug }: { task: TaskKey; slug: st
                   <Link href={`/updates/${item.slug}`} className="text-sm font-semibold text-[var(--io-heading)] hover:text-[var(--io-brand)]">
                     {item.title}
                   </Link>
-                  <p className="mt-1 text-xs uppercase tracking-wide text-slate-400">
-                    {item.publishedAt
-                      ? new Date(item.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-                      : 'Recently'}
-                  </p>
                 </li>
               ))}
             </ul>

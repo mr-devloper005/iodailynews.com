@@ -118,7 +118,7 @@ export async function HomePageOverride() {
         </div>
       </section>
 
-      <section className="mx-auto -mt-8 max-w-6xl px-4 sm:px-6">
+      <section className="mx-auto mt-8 max-w-6xl px-4 pb-2 sm:px-6 sm:mt-12">
         <div className="rounded-[1.9rem] border border-[#eadfda] bg-white px-6 py-7 shadow-[0_26px_65px_rgba(26,16,26,0.14)] sm:px-8">
           <div className="grid gap-7 lg:grid-cols-[1.12fr_0.88fr] lg:items-center">
             <div>
@@ -139,7 +139,7 @@ export async function HomePageOverride() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+      <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
         <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#8a5f4d]">Top stories</p>
@@ -195,9 +195,6 @@ export async function HomePageOverride() {
                 >
                   Start submission
                   <ArrowRight className="h-4 w-4" aria-hidden />
-                </Link>
-                <Link href="/pricing" className="inline-flex items-center rounded-full border border-[#e4d4ce] bg-[#fffaf7] px-5 py-2.5 text-sm font-semibold text-[#5f3e32] hover:bg-white">
-                  Compare plans
                 </Link>
               </div>
             </article>
@@ -322,15 +319,9 @@ export async function HomePageOverride() {
           <div className="flex flex-wrap gap-4">
             <Link
               href={siteContent.cta.primaryCta.href}
-              className="inline-flex items-center justify-center rounded-full bg-[#21152f] px-6 py-3 text-sm font-semibold text-white hover:bg-[#2b1c3f]"
+              className="inline-flex items-center justify-center rounded-full bg-[#21152f] px-6 py-3 text-sm font-semibold text-white hover:bg-[#2b1c3f] mr-4" style={{ marginRight: '50px' }}
             >
               {siteContent.cta.primaryCta.label}
-            </Link>
-            <Link
-              href={siteContent.cta.secondaryCta.href}
-              className="inline-flex items-center justify-center rounded-full border border-[#3c2a28] bg-white/55 px-6 py-3 text-sm font-semibold text-[#2f1b1a] hover:bg-white"
-            >
-              {siteContent.cta.secondaryCta.label}
             </Link>
           </div>
         </div>
