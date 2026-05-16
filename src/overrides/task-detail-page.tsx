@@ -1,219 +1,154 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { Facebook, Linkedin, Mail, Twitter } from 'lucide-react'
+import { Facebook, Linkedin, Link2, Mail, Twitter } from 'lucide-react'
 import { NavbarShell } from '@/components/shared/navbar-shell'
 import { Footer } from '@/components/shared/footer'
 import { ContentImage } from '@/components/shared/content-image'
-import { fetchTaskPostBySlug, fetchTaskPosts } from '@/lib/task-data'
+import { fetchTaskPostBySlug, fetchTaskPosts, buildPostUrl } from '@/lib/task-data'
 import type { TaskKey } from '@/lib/site-config'
-import { SITE_CONFIG, getTaskConfig } from '@/lib/site-config'
-import { RichContent, formatRichHtml } from '@/components/shared/rich-content'
-import { SchemaJsonLd } from '@/components/seo/schema-jsonld'
 import type { SitePost } from '@/lib/site-connector'
+import { SITE_CONFIG } from '@/lib/site-config'
+import { formatRichHtml, RichContent } from '@/components/shared/rich-content'
 
 export const TASK_DETAIL_PAGE_OVERRIDE_ENABLED = true
-
-type PostContent = {
-  category?: string
-  body?: string
-  description?: string
-  excerpt?: string
-  images?: string[]
-}
 
 const isValidImageUrl = (value?: string | null) =>
   typeof value === 'string' && (value.startsWith('/') || /^https?:\/\//i.test(value))
 
-const getContent = (post: SitePost): PostContent => {
+const getContent = (post: SitePost) => {
   const content = post.content && typeof post.content === 'object' ? post.content : {}
-  return content as PostContent
+  return content as Record<string, unknown>
 }
 
-const getImageUrls = (post: SitePost, content: PostContent) => {
+const getImageUrls = (post: SitePost, content: Record<string, unknown>) => {
   const media = Array.isArray(post.media) ? post.media : []
   const mediaImages = media.map((item) => item?.url).filter((url): url is string => isValidImageUrl(url))
-  const contentImages = Array.isArray(content.images) ? content.images.filter((url): url is string => isValidImageUrl(url)) : []
+  const contentImages = Array.isArray(content.images)
+    ? content.images.filter((url): url is string => typeof url === 'string' && isValidImageUrl(url))
+    : []
   const merged = [...mediaImages, ...contentImages]
   if (merged.length) return merged
-  return ['/placeholder.svg?height=900&width=1400']
-}
-
-const absoluteUrl = (value?: string | null) => {
-  if (!value) return null
-  if (/^https?:\/\//i.test(value)) return value
-  if (!value.startsWith('/')) return null
-  return `${SITE_CONFIG.baseUrl.replace(/\/$/, '')}${value}`
+  if (isValidImageUrl(content.logo as string)) return [content.logo as string]
+  return [] as string[]
 }
 
 export async function TaskDetailPageOverride({ slug }: { task: TaskKey; slug: string }) {
   const post = await fetchTaskPostBySlug('mediaDistribution', slug)
   if (!post) notFound()
 
-  const taskConfig = getTaskConfig('mediaDistribution')
-  const content = getContent(post)
-  const related = (await fetchTaskPosts('mediaDistribution', 10, { fresh: true }))
+  const related = (await fetchTaskPosts('mediaDistribution', 8, { fresh: true }))
     .filter((item) => item.slug !== slug)
-    .slice(0, 5)
+    .slice(0, 4)
 
-  const images = getImageUrls(post, content)
-  const featured = images[0]
-  const html = formatRichHtml(
+  const content = getContent(post)
+  const rawBody =
     (typeof content.body === 'string' && content.body.trim()) ||
-      (typeof content.description === 'string' && content.description.trim()) ||
-      post.summary ||
-      '',
-    'Content will appear here once published.',
-  )
-
-  const subtitle =
-    (typeof content.excerpt === 'string' && content.excerpt.trim()) ||
-    (post.summary && post.summary.trim()) ||
+    (typeof content.description === 'string' && content.description.trim()) ||
+    post.summary ||
     ''
-
-  const category = typeof content.category === 'string' && content.category.trim() ? content.category.trim() : 'Press release'
-  const author = post.authorName || 'Editorial desk'
-  const published = post.publishedAt
+  const html = formatRichHtml(rawBody, '')
+  const images = getImageUrls(post, content)
+  const hero = images[0]
+  const archivePath = SITE_CONFIG.taskViews.mediaDistribution || '/updates'
+  const pageUrl = `${SITE_CONFIG.baseUrl.replace(/\/$/, '')}${buildPostUrl('mediaDistribution', post.slug)}`
+  const shareText = encodeURIComponent(post.title)
+  const shareUrl = encodeURIComponent(pageUrl)
+  const date = post.publishedAt
     ? new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
     : ''
 
-  const pageUrl = `${SITE_CONFIG.baseUrl.replace(/\/$/, '')}/updates/${post.slug}`
-  const encoded = encodeURIComponent(pageUrl)
-  const shareTitle = encodeURIComponent(post.title)
-  const shareLinks = [
-    { label: 'Facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${encoded}`, icon: Facebook },
-    { label: 'X', href: `https://twitter.com/intent/tweet?url=${encoded}&text=${shareTitle}`, icon: Twitter },
-    { label: 'LinkedIn', href: `https://www.linkedin.com/sharing/share-offsite/?url=${encoded}`, icon: Linkedin },
-    { label: 'Email', href: `mailto:?subject=${shareTitle}&body=${encoded}`, icon: Mail },
-  ]
-
-  const articleImage = absoluteUrl(featured) || absoluteUrl(SITE_CONFIG.defaultOgImage)
-
-  const schema = [
-    {
-      '@context': 'https://schema.org',
-      '@type': 'NewsArticle',
-      headline: post.title,
-      description: subtitle || post.summary || category,
-      image: articleImage ? [articleImage] : [],
-      datePublished: post.publishedAt || undefined,
-      dateModified: post.publishedAt || undefined,
-      author: { '@type': 'Person', name: author },
-      publisher: {
-        '@type': 'Organization',
-        name: SITE_CONFIG.name,
-        logo: {
-          '@type': 'ImageObject',
-          url: `${SITE_CONFIG.baseUrl.replace(/\/$/, '')}${SITE_CONFIG.defaultOgImage}`,
-        },
-      },
-      mainEntityOfPage: { '@type': 'WebPage', '@id': pageUrl },
-    },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'BreadcrumbList',
-      itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_CONFIG.baseUrl.replace(/\/$/, '') },
-        {
-          '@type': 'ListItem',
-          position: 2,
-          name: taskConfig?.label || 'Press releases',
-          item: `${SITE_CONFIG.baseUrl.replace(/\/$/, '')}${taskConfig?.route || '/updates'}`,
-        },
-        { '@type': 'ListItem', position: 3, name: post.title, item: pageUrl },
-      ],
-    },
-  ]
-
   return (
-    <div className="min-h-screen bg-[var(--io-canvas)] text-[var(--io-ink)]">
+    <div className="min-h-screen bg-white text-foreground">
       <NavbarShell />
-      <SchemaJsonLd data={schema} />
 
-      <article className="mx-auto max-w-6xl px-4 pb-20 pt-10 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-12 lg:pt-14">
-        <div>
-          <nav className="text-xs font-medium text-slate-500">
-            <Link href="/" className="hover:text-[var(--io-brand)]">
-              Home
-            </Link>
-            <span className="mx-2 opacity-50">/</span>
-            <Link href={taskConfig?.route || '/updates'} className="hover:text-[var(--io-brand)]">
-              {taskConfig?.label || 'Press releases'}
-            </Link>
-            <span className="mx-2 opacity-50">/</span>
-            <span className="text-slate-700">Release</span>
-          </nav>
+      <article className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6 lg:pt-12">
+        <nav className="text-xs font-medium text-muted-foreground">
+          <Link href="/" className="hover:text-primary">
+            Home
+          </Link>
+          <span className="mx-2 opacity-40">/</span>
+          <Link href={archivePath} className="hover:text-primary">
+            Press releases
+          </Link>
+        </nav>
 
-          <p className="mt-8 text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">Press release</p>
-          <h1 className="mt-3 font-[family-name:var(--site-font-display)] text-3xl font-semibold leading-tight tracking-[-0.03em] text-[var(--io-heading)] sm:text-4xl lg:text-[2.35rem]">
-            {post.title}
-          </h1>
+        <div className="mt-8 grid gap-12 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-14">
+          <div className="min-w-0">
+            <h1 className="font-[family-name:var(--font-display)] text-3xl font-semibold leading-[1.12] tracking-[-0.03em] text-foreground sm:text-4xl lg:text-[2.35rem]">
+              {post.title}
+            </h1>
 
-          {subtitle ? (
-            <p className="mt-5 border-l-4 border-[var(--io-brand)] bg-[color-mix(in_srgb,var(--io-stone)_10%,var(--io-canvas))] py-3 pl-5 pr-4 text-base italic leading-relaxed text-[var(--io-muted-text)]">
-              {subtitle}
-            </p>
-          ) : null}
+            {date ? (
+              <div className="mt-5 text-sm text-muted-foreground">
+                <span>{date}</span>
+              </div>
+            ) : null}
 
-          <div className="mt-8 flex flex-wrap items-center gap-3 text-sm text-slate-600">
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-700">{category}</span>
-            <span className="text-slate-400">·</span>
-            <span>
-              By <span className="font-medium text-slate-900">{author}</span>
-            </span>
-          </div>
-
-          <div className="mt-8 flex flex-wrap gap-2">
-            {shareLinks.map(({ label, href, icon: Icon }) => (
+            <div className="mt-6 flex flex-wrap gap-2">
               <a
-                key={label}
-                href={href}
+                href={`https://twitter.com/intent/tweet?text=${shareText}&url=${shareUrl}`}
                 target="_blank"
-                rel="noreferrer"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--io-border)] bg-white text-[var(--io-muted-text)] shadow-sm transition hover:border-[var(--io-stone)] hover:text-[var(--io-brand)]"
+                rel="noopener noreferrer"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-foreground shadow-sm transition hover:border-primary/40 hover:bg-muted"
+                aria-label="Share on X"
               >
-                <Icon className="h-4 w-4" aria-hidden />
-                <span className="sr-only">Share on {label}</span>
+                <Twitter className="h-4 w-4" />
               </a>
-            ))}
-          </div>
-
-          {featured ? (
-            <div className="relative mt-10 aspect-[16/9] w-full overflow-hidden rounded-2xl border border-[var(--io-border)] bg-slate-100 shadow-inner">
-              <ContentImage src={featured} alt={post.title} fill className="object-cover" />
+              <a
+                href={`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-foreground shadow-sm transition hover:border-primary/40 hover:bg-muted"
+                aria-label="Share on LinkedIn"
+              >
+                <Linkedin className="h-4 w-4" />
+              </a>
+              <a
+                href={`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-foreground shadow-sm transition hover:border-primary/40 hover:bg-muted"
+                aria-label="Share on Facebook"
+              >
+                <Facebook className="h-4 w-4" />
+              </a>
+              <a
+                href={`mailto:?subject=${shareText}&body=${shareUrl}`}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-foreground shadow-sm transition hover:border-primary/40 hover:bg-muted"
+                aria-label="Email this release"
+              >
+                <Mail className="h-4 w-4" />
+              </a>
+              <span className="inline-flex items-center gap-1 rounded-full border border-dashed border-border px-3 py-2 text-xs text-muted-foreground">
+                <Link2 className="h-3.5 w-3.5" />
+                {pageUrl.replace(/^https?:\/\//, '')}
+              </span>
             </div>
-          ) : null}
 
-          <div className="prose prose-slate prose-lg mt-12 max-w-none prose-headings:font-[family-name:var(--site-font-display)] prose-headings:text-[var(--io-heading)] prose-headings:tracking-tight prose-a:text-[var(--io-brand)] prose-img:rounded-xl">
-            <RichContent html={html} />
+            {hero ? (
+              <div className="relative mt-10 aspect-[16/9] w-full overflow-hidden rounded-[1.25rem] border border-border bg-muted shadow-sm">
+                <ContentImage src={hero} alt={post.title} fill className="object-cover" priority />
+              </div>
+            ) : null}
+
+            <RichContent html={html} className="article-content mt-10 max-w-none text-[1.05rem] leading-[1.75] text-foreground/90" />
           </div>
+
+          <aside className="space-y-6 lg:pt-2">
+            <div className="rounded-[1.25rem] border border-border bg-white p-6 shadow-sm">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">More releases</p>
+              <ul className="mt-4 space-y-4">
+                {related.map((item) => (
+                  <li key={item.id}>
+                    <Link href={buildPostUrl('mediaDistribution', item.slug)} className="block text-sm font-semibold leading-snug text-foreground hover:text-primary">
+                      {item.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </aside>
         </div>
-
-        <aside className="mt-14 space-y-8 lg:mt-0">
-          <div className="rounded-2xl border border-[var(--io-border)] bg-white p-6 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Publisher</p>
-            <p className="mt-3 text-lg font-semibold text-[var(--io-heading)]">{SITE_CONFIG.name}</p>
-            <p className="mt-2 text-sm text-[var(--io-muted-text)]">{SITE_CONFIG.tagline}</p>
-            <Link href="/contact" className="mt-5 inline-flex text-sm font-semibold text-[var(--io-brand)] hover:underline">
-              Media contact →
-            </Link>
-          </div>
-
-          <div className="rounded-2xl border border-[var(--io-border)] bg-white p-6 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">More press releases</p>
-            <ul className="mt-4 space-y-4">
-              {related.map((item) => (
-                <li key={item.id} className="border-b border-slate-100 pb-4 last:border-b-0 last:pb-0">
-                  <Link href={`/updates/${item.slug}`} className="text-sm font-semibold text-[var(--io-heading)] hover:text-[var(--io-brand)]">
-                    {item.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <Link href="/updates" className="mt-6 inline-flex text-sm font-semibold text-[var(--io-brand)] hover:underline">
-              View all releases →
-            </Link>
-          </div>
-        </aside>
       </article>
 
       <Footer />
